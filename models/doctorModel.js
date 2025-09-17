@@ -12,8 +12,8 @@ const DoctorSchema = new Schema(
     user: { type: Types.ObjectId, ref: "User", required: true, unique: true },
     status: {
       type: String,
-      enum: ["active", "inactive", "on_leave"],
-      default: "active",
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
     locations: [{ type: String, trim: true }],
     department: { type: String, trim: true },
