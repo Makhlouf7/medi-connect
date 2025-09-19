@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema, model, Types } = mongoose;
 
 const ReportFileSchema = new Schema({
-  name: { type: String, trim: true }, //
+  name: { type: String, trim: true }, // default file name
   url: { type: String, trim: true }, // uploads/filename.ext
 });
 
@@ -15,7 +15,12 @@ const PatientReportSchema = new Schema({
 
 const PatientSchema = new Schema(
   {
-    user: { type: Types.ObjectId, ref: "User", required: true, unique: true },
+    user: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: [true, "User is required"],
+      unique: true,
+    },
     reports: [PatientReportSchema],
   },
   { timestamps: true }
