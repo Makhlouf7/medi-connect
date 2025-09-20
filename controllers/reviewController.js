@@ -10,6 +10,8 @@ const mongoose = require("mongoose");
 // Helper function to update doctor ratings
 const updateDoctorRatings = async (doctorId) => {
   try {
+    console.log("1");
+
     // Convert string to ObjectId
     const doctorObjectId = mongoose.Types.ObjectId.isValid(doctorId)
       ? new mongoose.Types.ObjectId(doctorId)
@@ -78,15 +80,6 @@ const createReview = catchAsync(async (req, res, next) => {
     if (doctorDoc.status !== "approved") {
       return next(new AppError("Cannot review unapproved doctors", 400));
     }
-
-    // Check if review already exists
-    // const existingReview = await Review.findOne({
-    //   patient: patient._id,
-    //   doctor,
-    // });
-    // if (existingReview) {
-    //   return next(new AppError("You have already reviewed this doctor", 400));
-    // }
 
     // Create review with patient ID
     const newReview = await Review.create({

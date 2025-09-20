@@ -1,5 +1,6 @@
 const express = require("express");
 const userRoute = require("./routes/userRoute");
+const reviewRoute = require("./routes/reviewRoute");
 const globalErrorHandler = require("./controllers/errorController");
 const app = express();
 
