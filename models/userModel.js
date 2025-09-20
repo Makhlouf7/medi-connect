@@ -44,7 +44,7 @@ const UserSchema = new Schema(
         validator: function (val) {
           return val === this.password;
         },
-        message: "Passwords do not match",
+        message: "Password confirmation does not match.",
       },
     },
     passwordChangedAt: {
@@ -79,6 +79,17 @@ UserSchema.pre("save", async function (next) {
 
   next();
 });
+
+// Taking the case when user changed password but still having the old token
+// If not handled and some have a valid token, he will be able to do anything even if user changed his password
+UserSchema.methods.isIssuedBeforeLatestPasswordChange = function (iat) {
+  const passwordChangedAtSeconds = Number.parseInt(
+    this.passwordChangedAt.getTime() / 1000,
+    10
+  );
+
+  return iat < passwordChangedAtSeconds;
+};
 
 // Take the entered password by the user and compares it with the encrypted password in the DB
 UserSchema.methods.comparePassword = async function (candidatePassword) {

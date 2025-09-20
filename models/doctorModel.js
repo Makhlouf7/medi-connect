@@ -3,10 +3,20 @@ const { Schema, model, Types } = mongoose;
 
 const WorkingTimeSchema = new Schema({
   dayOfWeek: {
-    type: Number,
-    min: 0,
-    max: 6,
+    type: String,
     required: [true, "Day of week is required"],
+    enum: {
+      values: [
+        "Friday",
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+      ],
+      message: "Invalid day!",
+    },
   },
   start: { type: Date, required: [true, "Start time is required"] },
   end: { type: Date, required: [true, "End time is required"] },
@@ -36,6 +46,7 @@ const DoctorSchema = new Schema(
       type: [WorkingTimeSchema],
       required: [true, "Please add your working hours"],
     },
+    patients: [Types.ObjectId],
     rating: { type: Number, min: 0, max: 5, default: 0 },
     ratingsCount: { type: Number, default: 0 },
   },
