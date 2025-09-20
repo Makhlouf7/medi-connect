@@ -8,7 +8,8 @@ const {
   getMe,
   updateMe,
   updateMyPassword,
-  updatePatientReports,
+  createPatientReport,
+  deletePatientReport,
   deleteMe,
   createAdmin,
   deleteAdmin,
@@ -25,10 +26,15 @@ router.route("/me").get(getMe).patch(updateMe).delete(deleteMe);
 router.patch("/password", updateMyPassword);
 
 // Doctor route
-router.post(
-  "/updatePatientReports/:id",
+// Note id here is not patientProfile _id, its user id "User"
+router
+  .route("/updatePatientReports/:id")
+  .post(upload.array("reportFiles"), restrictTo("doctor"), createPatientReport);
+// Note patientId is not profileId, its user id "User"
+router.delete(
+  "/updatePatientReports/:patientId/report/:reportId",
   restrictTo("doctor"),
-  updatePatientReports
+  deletePatientReport
 );
 
 // Owner route

@@ -5,6 +5,7 @@ const Doctor = require("../models/doctorModel");
 const Patient = require("../models/patientModel");
 const catchAsync = require("../utils/catchAsync");
 const filterAttributes = require("../utils/filterAttributes");
+const deleteFiles = require("../utils/deleteFiles");
 const jwt = require("jsonwebtoken");
 
 const login = catchAsync(async (req, res, next) => {
@@ -75,7 +76,7 @@ const getMe = catchAsync(async (req, res, next) => {
 
 1. some of these attributes might be specified for specific profile which will make the function decide based on the role then update it.
 
-2. email shouldn't be updated that way, we should send an email having a confirmation token to confirm if its a real email but as its an internship we won't be able to do that
+2. email shouldn't be updated that way, we should send an email having a confirmation token to confirm if its a real email but as its an internship we won't be able to do that as we don't have a domain
 
 3. SMTP is not reliable as its blocked from lots of deployment platforms
 
@@ -127,21 +128,38 @@ const updateMyPassword = catchAsync(async (req, res, next) => {
   });
 });
 
-// Allowing doctor to update his patients reports
-const updatePatientReports = catchAsync(async (req, res, next) => {
+// Allowing doctor to add a report to patient reports
+const createPatientReport = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const filteredObj = filterAttributes(req.body, ["reports"]);
-  const patient = req.user.doctorProfile.patients.id(id);
 
-  if (!patient)
+  req.body.files = req.files.map((file) => file.originalname);
+
+  if (!req.user.doctorProfile.patients.includes(id))
     return next(new AppError("You can only update your patients reports", 403));
 
-  const updatedPatient = await Patient.findByIdAndUpdate(id, filteredObj, {
-    new: true,
-    runValidators: true,
-  });
+  const updatedPatient = await Patient.findOneAndUpdate(
+    { user: id },
+    { $push: { reports: req.body } },
+    { new: true, runValidators: true }
+  );
 
   new ServerResponse(res, 200, updatedPatient);
+});
+
+// Allow doctor to remove a report from patient reports
+const deletePatientReport = catchAsync(async (req, res, next) => {
+  const { patientId, reportId } = req.params;
+
+  if (!req.user.doctorProfile.patients.includes(patientId))
+    return next(new AppError("You can only update your patients reports", 403));
+
+  const patient = await Patient.findOne({ user: patientId });
+  const report = patient.reports.id(reportId);
+  await deleteFiles(report.files);
+  patient.reports.remove(reportId);
+  await patient.save();
+
+  new ServerResponse(res, 204);
 });
 
 const deleteMe = catchAsync(async (req, res, next) => {
@@ -206,7 +224,8 @@ module.exports = {
   getMe,
   updateMe,
   updateMyPassword,
-  updatePatientReports,
+  createPatientReport,
+  deletePatientReport,
   deleteMe,
   createAdmin,
   deleteAdmin,
