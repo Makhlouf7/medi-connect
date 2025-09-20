@@ -6,11 +6,10 @@ const {
   updateReview,
   deleteReview,
   getDoctorReviews,
-  getMyReviews,
 } = require("../controllers/reviewController");
 const { protect, restrictTo } = require("../controllers/authController");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 // All routes require authentication
 router.use(protect);
@@ -18,15 +17,13 @@ router.use(protect);
 // Get reviews for a specific doctor
 router.get("/doctors/:doctorId", getDoctorReviews);
 
-// Get my reviews (patients)
-router.get("/my-reviews", getMyReviews);
-
 // CRUD routes
-router
-  .route("/")
-  .get(restrictTo("admin", "owner"), getAllReviews)
-  .post(createReview);
+router.route("/").get(getAllReviews).post(restrictTo("patient"), createReview);
 
-router.route("/:id").get(getReview).patch(updateReview).delete(deleteReview);
+router
+  .route("/:id")
+  .get(getReview)
+  .patch(restrictTo("patient"), updateReview)
+  .delete(restrictTo("patient", "admin"), deleteReview);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema, model, Types } = mongoose;
+const Doctor = require("./doctorModel"); // Import the Doctor model
 
 const ReviewSchema = new Schema(
   {
@@ -24,7 +25,44 @@ const ReviewSchema = new Schema(
   { timestamps: true }
 );
 
-ReviewSchema.index({ patient: 1, doctor: 1 }, { unique: true });
+ReviewSchema.statics.calcAverageRatings = async function (doctorId) {
+  const stats = await this.aggregate([
+    {
+      $match: { doctor: doctorId },
+    },
+    {
+      $group: {
+        _id: "$doctor",
+        nRating: { $sum: 1 },
+        avgRating: { $avg: "$rating" },
+      },
+    },
+  ]);
+
+  if (stats.length > 0) {
+    await Doctor.findByIdAndUpdate(doctorId, {
+      ratingsCount: stats[0].nRating,
+      rating: stats[0].avgRating,
+    });
+  } else {
+    await Doctor.findByIdAndUpdate(doctorId, {
+      ratingsCount: 0,
+      rating: 0,
+    });
+  }
+};
+
+// Middleware to update ratings on save
+ReviewSchema.post("save", function () {
+  this.constructor.calcAverageRatings(this.doctor);
+});
+
+// Middleware to update (findByIdAndUpdate || findByIdAndDelete)
+ReviewSchema.post(/^findOneAnd/, async function (doc) {
+  if (doc) {
+    await doc.constructor.calcAverageRatings(doc.doctor);
+  }
+});
 
 const Review = model("Review", ReviewSchema);
 
