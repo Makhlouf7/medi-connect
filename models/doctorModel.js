@@ -46,11 +46,13 @@ const DoctorSchema = new Schema(
       type: [WorkingTimeSchema],
       required: [true, "Please add your working hours"],
     },
-    patients: [Types.ObjectId],
+    patients: [Types.ObjectId], // should be added from the appointmentController after patient place an appointment with that doctor
     rating: { type: Number, min: 0, max: 5, default: 0 },
     ratingsCount: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Doctor = model("Doctor", DoctorSchema);

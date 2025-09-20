@@ -1,9 +1,9 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const deleteFiles = async (images) => {
+const deleteFiles = async (files) => {
   await Promise.all(
-    images.map(async (originalname) =>
+    files.map(async (originalname) =>
       fs.unlink(path.join(__dirname, `../uploads/${originalname}`))
     )
   );
