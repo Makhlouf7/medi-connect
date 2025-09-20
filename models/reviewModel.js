@@ -27,4 +27,5 @@ const ReviewSchema = new Schema(
 ReviewSchema.index({ patient: 1, doctor: 1 }, { unique: true });
 
 const Review = model("Review", ReviewSchema);
+
 module.exports = Review;
