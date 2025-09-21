@@ -1,4 +1,4 @@
-const Appointment = require("../modules/appointment");
+const Appointment = require("../models/appointmentModel");
 const catchAsync = require("../utils/catchAsync");
 
 // add new appointment
