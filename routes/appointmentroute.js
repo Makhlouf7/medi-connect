@@ -5,23 +5,23 @@ const {
   getappointmentPatient,
   getappointmentDoctor,
   getappointmentAdmin,
-} = require("../controllers/appointmentController");
+} = require("../controllers/appointmentcontroller");
 
 const router = express.Router();
 
-//Add new appointment
-router.post("/", addAppointment);
+// Add a new appointment (after payment)
+router.post("/appointments", addAppointment);
 
-// Delete appointment by ID
-router.delete("/:id", deleteAppointment);
+// Delete an appointment
+router.delete("/appointments/:id", deleteAppointment);
 
-// Get appointments for specific patient
-router.get("/patient/:id", getappointmentPatient);
+// Get appointments for a specific patient
+router.get("/appointments/patient/:id", getappointmentPatient);
 
-// Get appointments for specific doctor
-router.get("/doctor/:id", getappointmentDoctor);
+// Get appointments for a specific doctor
+router.get("/appointments/doctor/:id", getappointmentDoctor);
 
-// Get all appointments (Admin)
-router.get("/admin", getappointmentAdmin);
+// Get all appointments (admin)
+router.get("/appointments/admin", getappointmentAdmin);
 
 module.exports = router;
